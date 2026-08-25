@@ -1,0 +1,11 @@
+# config/config_seen.yaml
+
+Setting: "Seen"
+
+# 测试数据路径
+point_test: "/data3/gaoyuming/Task_Oriented_Grasping/LASO-main/data/PIAD/point_test_seen.pkl"
+img_test: "/data3/gaoyuming/Task_Oriented_Grasping/LASO-main/data/PIAD/img_test_seen.pkl"
+box_test: "/data3/gaoyuming/Task_Oriented_Grasping/LASO-main/data/PIAD/box_test_seen.pkl"
+
+# batch 大小
+batch_size: 8
