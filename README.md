@@ -1,52 +1,70 @@
+<div align="center">
+
 # PointReferGrasp
 
-**End-to-End Learning of Affordance-Grounded Grasp Detection from Single-View Point Clouds**
+### End-to-End Learning of Affordance-Grounded Grasp Detection from Single-View Point Clouds
 
-[![Python](https://img.shields.io/badge/Python-3.8-blue.svg)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-1.10.1-ee4c2c.svg)](https://pytorch.org/)
-[![Project Status](https://img.shields.io/badge/status-release%20in%20progress-orange.svg)](#release-status)
+**Yuming Gao · Lichun Wang · Jiaqi Zheng · Kai Xu · Huayang Yao · Baocai Yin**
 
-PointReferGrasp is an end-to-end framework for grounding functional regions on 3D objects and estimating executable 6-DoF grasp poses from a single-view point cloud and a natural-language instruction.
+[![Python](https://img.shields.io/badge/Python-3.8-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-1.10.1-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+![Dataset](https://img.shields.io/badge/Dataset-Coming%20Soon-orange)
+![Code](https://img.shields.io/badge/Code-Partial%20Release-yellow)
 
-> [!IMPORTANT]
-> The **3D AffordanceGrasp dataset is not publicly available yet**. Dataset files, pretrained checkpoints, the complete 6-DoF grasp pipeline, and reproducible evaluation scripts will be released after they are finalized. Please do not request access through the obsolete dataset link that appeared in an earlier version of this README.
+[News](#news) · [Overview](#overview) · [Method](#method) · [Dataset](#3d-affordancegrasp-dataset) · [Installation](#installation) · [Quick Start](#quick-start) · [Results](#results) · [Citation](#citation)
+
+</div>
+
+> [!WARNING]
+> ### The dataset is not publicly available yet
+> The **3D AffordanceGrasp dataset has not been released**. This repository currently contains a partial code release and does **not** include dataset files, pretrained checkpoints, or the complete 6-DoF grasp pipeline. Download links, annotations, licenses, and reproducible evaluation scripts will be added after the release is finalized.
+
+## News
+
+- **2026-08:** PointReferGrasp project repository and initial affordance-grounding code released.
+- **Coming soon:** 3D AffordanceGrasp dataset, pretrained checkpoints, complete 6-DoF grasp code, and robot-demo instructions.
 
 ## Overview
 
-Conventional affordance-grounded grasping systems commonly use a two-stage pipeline: first segment a functional component, then generate and filter grasp candidates. Treating an entire component as uniformly graspable can produce semantically correct but physically unstable poses, especially near edges and part connections.
+PointReferGrasp takes a **single-view point cloud** and a **natural-language instruction** as input, then jointly predicts a fine-grained point-wise affordance map and executable 6-DoF grasp poses.
 
-PointReferGrasp instead performs point-wise affordance grounding and grasp estimation in a unified architecture. It predicts how suitable each visible point is for the requested interaction and uses this fine-grained affordance map to select functionally relevant 6-DoF grasp poses.
+Unlike conventional two-stage methods that treat an entire object part as uniformly graspable, PointReferGrasp learns where a grasp is both semantically appropriate and physically executable. This helps avoid unstable poses near part edges and connections.
 
-## Highlights
+<p align="center">
+  <img src="assets/pipeline.png" width="92%" alt="Comparison between a conventional two-stage pipeline and PointReferGrasp">
+</p>
+<p align="center"><em>PointReferGrasp replaces a decoupled part-level pipeline with end-to-end point-wise affordance grounding and grasp estimation.</em></p>
 
-- **Single-stage affordance-grounded grasping:** jointly reasons about point-level affordance and 6-DoF grasp pose estimation.
-- **Semantic Modulation Module (SMM):** injects global language semantics into point-cloud features using feature-wise modulation.
-- **Hierarchical Semantic-Cascade Affordance Decoding (HSCAD):** progressively moves from coarse object-level localization to fine functional-region refinement.
-- **Hierarchical Coarse-to-Fine Contrastive Learning (HCFCL):** uses coarse alignment and hard-negative mining to distinguish geometrically similar but functionally different regions.
-- **3D AffordanceGrasp benchmark:** provides natural-language instructions, point-wise soft affordance labels, and point-wise 6-DoF grasp annotations.
+### Highlights
+
+| Component | Description |
+| --- | --- |
+| **End-to-end prediction** | Joint point-wise affordance grounding and 6-DoF grasp estimation. |
+| **SMM** | Injects global language semantics into point-cloud features through feature-wise modulation. |
+| **HSCAD** | Progressively refines affordance grounding from coarse object regions to fine functional details. |
+| **HCFCL** | Uses hierarchical contrastive learning and hard-negative mining to sharpen functional boundaries. |
+| **3D AffordanceGrasp** | A benchmark with language instructions, point-wise soft affordance labels, and 6-DoF grasp annotations. |
 
 ## Method
 
-Given a single-view point cloud $P \in \mathbb{R}^{N \times 3}$ and a natural-language instruction $T$, PointReferGrasp contains four main components:
+PointReferGrasp contains four main components:
 
-1. **Linguistic-aware point encoding** extracts text features with RoBERTa and geometric features with PointNet++, followed by language-conditioned semantic modulation.
-2. **Hierarchical affordance decoding** first localizes a coarse functional region and then refines point-wise affordance predictions inside that region.
-3. **Coarse-to-fine contrastive learning** aligns visual and linguistic representations while explicitly suppressing hard negative regions.
-4. **6-DoF grasp estimation** predicts approach directions and grasp parameters from local geometry, then filters candidate poses using the predicted affordance map.
+1. **Linguistic-Aware Point Encoding** extracts RoBERTa text features and PointNet++ geometric features, then performs language-conditioned semantic modulation.
+2. **Hierarchical Semantic-Cascade Affordance Decoding (HSCAD)** first localizes a coarse functional region and then refines the point-wise affordance prediction.
+3. **Hierarchical Coarse-to-Fine Contrastive Learning (HCFCL)** aligns linguistic and geometric features while suppressing hard negative regions.
+4. **6-DoF Grasp Pose Estimation** predicts approach directions and grasp parameters from local geometry, then selects poses using the predicted affordance map.
 
-The complete model is optimized with a multi-task objective combining hierarchical segmentation, contrastive, and grasp-estimation losses.
+<p align="center">
+  <img src="assets/architecture.png" width="100%" alt="PointReferGrasp architecture">
+</p>
+<p align="center"><em>Overall architecture of PointReferGrasp.</em></p>
 
 ## 3D AffordanceGrasp Dataset
 
-Each sample is represented as:
+> [!IMPORTANT]
+> **Release status: NOT PUBLIC.** The dataset is still being organized and validated. There is currently no official download link.
 
-$$
-\mathcal{D} = (P, A, T, G),
-$$
-
-where $P$ is a single-view object point cloud, $A$ is a point-wise soft affordance label, $T$ is a natural-language instruction, and $G$ contains point-wise 6-DoF grasp ground truths.
-
-Dataset summary:
+Each sample is represented as $\mathcal{D}=(P,A,T,G)$, where $P$ is a single-view point cloud, $A$ is a point-wise soft affordance label, $T$ is a natural-language instruction, and $G$ contains point-wise 6-DoF grasp ground truths.
 
 | Property | Value |
 | --- | ---: |
@@ -56,44 +74,34 @@ Dataset summary:
 | Training instances | 7,070 |
 | Test instances | 1,767 |
 
-The five affordance types are `grasp`, `lift`, `move`, `open`, and `wrap grasp`. Instructions cover simple, intermediate, and complex descriptions generated from structured object-part-affordance triples.
+The five affordance types are `grasp`, `lift`, `move`, `open`, and `wrap grasp`. The release package will include checksums, licensing terms, annotation documentation, preprocessing tools, and official splits.
 
-### Dataset availability
+## Qualitative Results
 
-The dataset is currently undergoing final organization and validation and is **not public**. When released, this section will contain:
+### Point-wise affordance grounding
 
-- download links and checksums;
-- the license and terms of use;
-- directory structure and annotation specification;
-- preprocessing and train/test split instructions.
+<p align="center">
+  <img src="assets/affordance_grounding.png" width="100%" alt="Qualitative affordance grounding results">
+</p>
+<p align="center"><em>PointReferGrasp produces fine-grained affordance maps that more closely follow the ground-truth distribution than LASO.</em></p>
+
+### Affordance-grounded 6-DoF grasp detection
+
+<p align="center">
+  <img src="assets/grasp_detection.png" width="100%" alt="Qualitative affordance-grounded grasp detection results">
+</p>
+<p align="center"><em>Compared with the part-level PIONEER pipeline, PointReferGrasp selects grasp poses inside functionally appropriate regions.</em></p>
 
 ## Release Status
 
-This repository is an early code release. The currently committed code primarily covers the language-guided, point-wise affordance grounding component.
-
 | Component | Status |
 | --- | --- |
-| Affordance-grounding model | Available |
-| Training and grounding utilities | Available |
-| 3D AffordanceGrasp dataset | Coming soon |
-| Pretrained checkpoints | Coming soon |
-| Complete 6-DoF grasp pipeline | Coming soon |
-| Reproducible evaluation and robot demos | Coming soon |
-
-## Repository Structure
-
-```text
-PointReferGrasp/
-├── config/                  # Model and training configuration
-├── data_utils/              # Dataset loading and preprocessing
-├── model/                   # PointReferGrasp grounding modules
-├── utils/                   # Losses, metrics, logging, and visualization
-├── train_n.py               # Main grounding training entry point
-├── train.py                 # Alternative training entry point
-├── inference.py             # Inference utility
-├── evalization.py           # Evaluation utility
-└── requirements.txt         # Original development environment snapshot
-```
+| Affordance-grounding model | ✅ Available |
+| Training and grounding utilities | ✅ Available |
+| 3D AffordanceGrasp dataset | ⏳ Coming soon |
+| Pretrained checkpoints | ⏳ Coming soon |
+| Complete 6-DoF grasp pipeline | ⏳ Coming soon |
+| Reproducible evaluation and robot demos | ⏳ Coming soon |
 
 ## Installation
 
@@ -108,13 +116,11 @@ conda activate pointrefergrasp
 ```
 
 > [!NOTE]
-> `requirements.txt` is an environment snapshot and currently includes several machine-local Conda build references. A clean, reproducible environment specification will be provided with the complete release. CUDA extensions such as `pointnet2-cuda` must match the installed PyTorch and CUDA versions.
+> `requirements.txt` is currently an environment snapshot and includes machine-local Conda build references. A clean reproducible environment file will be provided with the complete release. CUDA extensions such as `pointnet2-cuda` must match the installed PyTorch and CUDA versions.
 
 ## Data Preparation
 
-The current grounding loader expects split annotation files, object point clouds, and language instructions. Before training, set `data_root` in `data_utils/shapenetpart.py` to the local dataset directory.
-
-The expected grounding files are:
+The current grounding loader expects the following files:
 
 ```text
 <data_root>/
@@ -127,11 +133,13 @@ The expected grounding files are:
 └── Affordance-Question.csv
 ```
 
-These files are part of the forthcoming dataset release and are not included in this repository.
+Before training, update `data_root` in `data_utils/shapenetpart.py`. These data files are **not included** because the dataset has not yet been publicly released.
 
-## Training
+## Quick Start
 
-After preparing the environment and dataset, start grounding training with:
+### Training
+
+After the dataset becomes available and the environment is prepared:
 
 ```bash
 python train_n.py \
@@ -141,11 +149,15 @@ python train_n.py \
   --name PointReferGrasp
 ```
 
-Training outputs are written under `runs/train/` by default. Configuration values such as batch size, learning rate, number of points, and embedding dimensions are defined in `config/default.yaml` and can be overridden by supported command-line arguments.
+Training outputs are written to `runs/train/` by default.
+
+### Evaluation and inference
+
+Official checkpoints and reproducible evaluation commands will be published together with the complete code and dataset release.
 
 ## Results
 
-On the 3D AffordanceGrasp benchmark, PointReferGrasp improves both physical grasp quality and functional localization over the two-stage PIONEER baseline.
+### 3D AffordanceGrasp benchmark
 
 | Split | Method | AP ↑ | AP@0.8 ↑ | AP@0.4 ↑ | DAP (cm) ↓ |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -154,7 +166,26 @@ On the 3D AffordanceGrasp benchmark, PointReferGrasp improves both physical gras
 | Unseen | PIONEER | 46.36 | 51.97 | 43.46 | 5.67 |
 | Unseen | **PointReferGrasp** | **60.11** | **66.62** | **56.17** | **2.34** |
 
-Real-robot experiments achieved an average success rate of **91.0%** in single-object scenes and **88.5%** in multi-object scenes. Detailed protocols and evaluation scripts will be included in the complete release.
+### Real-robot experiments
+
+| Setting | PIONEER | PointReferGrasp |
+| --- | ---: | ---: |
+| Single-object success rate | 81.0% | **91.0%** |
+| Multi-object success rate | 74.4% | **88.5%** |
+
+## Repository Structure
+
+```text
+PointReferGrasp/
+├── assets/                  # README figures
+├── config/                  # Model and training configuration
+├── data_utils/              # Dataset loading and preprocessing
+├── model/                   # PointReferGrasp grounding modules
+├── utils/                   # Losses, metrics, logging, and visualization
+├── train_n.py               # Main grounding training entry point
+├── inference.py             # Inference utility
+└── requirements.txt         # Original environment snapshot
+```
 
 ## Citation
 
@@ -171,12 +202,12 @@ If you find this project useful, please cite the manuscript:
 
 ## Acknowledgements
 
-This project builds on ideas and tools from PointNet++, RoBERTa, MinkowskiEngine, GraspNet-1Billion, 3D AffordanceNet, LASO, and related affordance-grounding and grasp-detection research.
-
-## License
-
-A project license will be added before the complete public release. Until then, no permission is granted to redistribute or reuse the code beyond applicable legal exceptions.
+This project builds on PointNet++, RoBERTa, MinkowskiEngine, GraspNet-1Billion, 3D AffordanceNet, LASO, and related affordance-grounding and grasp-detection research. We thank their authors and contributors.
 
 ## Contact
 
-For research questions, please contact the project authors or open a GitHub issue after the repository becomes public.
+For questions, suggestions, or collaboration, please open an issue in this repository.
+
+## License
+
+A project license will be added before the complete public release.
